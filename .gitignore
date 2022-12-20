@@ -4,3 +4,7 @@ bin/
 .vscode/
 SDL2
 .DS_Store
+cmake_install.cmake
+CMakeFiles/
+CMakeCache.txt
+Makefile
