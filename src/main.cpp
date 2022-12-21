@@ -1,20 +1,10 @@
 #include "application_ui.h"
 #include "SDL2_gfxPrimitives.h"
-
-void drawRectangle(int x, int y, int w, int h, SDL_Renderer *renderer)
-{
-    SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
-    SDL_Rect rect;
-    rect.x = x;
-    rect.y = y;
-    rect.w = w;
-    rect.h = h;
-    SDL_RenderFillRect(renderer, &rect);
-};
+#include "ellipseRGBA.h"
 
 void draw(SDL_Renderer *renderer)
 {
-    drawRectangle(0, 0, 60, 60, renderer);
+    SDL_Rect ellipseRect = drawEllipseRGBA(renderer);
 };
 
 bool handleEvent()
@@ -46,9 +36,14 @@ int main(int argc, char **argv)
 
     renderer = SDL_CreateRenderer(gWindow, -1, 0); // SDL_RENDERER_PRESENTVSYNC
 
+    // Temps de début de la boucle de mise à jour
+    Uint32 startTime = SDL_GetTicks();
+
     /*  GAME LOOP  */
     while (true)
     {
+        // Calcul du temps écoulé depuis le début de la boucle de mise à jour
+        Uint32 elapsedTime = SDL_GetTicks() - startTime;
         // INPUTS
         is_running = handleEvent();
         if (!is_running)
@@ -63,13 +58,18 @@ int main(int argc, char **argv)
         SDL_RenderClear(renderer);
 
         // DESSIN
+        // Calcul de la distance parcourue par l'ellipse en fonction de la vitesse et du temps écoulé
+
         draw(renderer);
 
-        // VALIDATION FRAME
+        // Mise à jour de l'affichage
         SDL_RenderPresent(renderer);
 
         // PAUSE en ms
         SDL_Delay(1000 / 30);
+
+        // Mise à jour du temps de début de la boucle de mise à jour
+        startTime = SDL_GetTicks();
     }
 
     // Free resources and close SDL
