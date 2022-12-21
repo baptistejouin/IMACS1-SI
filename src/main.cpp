@@ -9,7 +9,7 @@ void draw(SDL_Renderer* renderer)
     /* 
     filledEllipseRGBA(
         renderer, ... ?
-    ); 
+    ); djkzd
     */
    
 }
