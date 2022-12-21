@@ -4,6 +4,7 @@
 
 void draw(SDL_Renderer *renderer)
 {
+    /* Remplissez cette fonction pour faire l'affichage du jeu */
     SDL_Rect ellipseRect = drawEllipseRGBA(renderer);
 };
 
