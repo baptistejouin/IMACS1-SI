@@ -5,9 +5,20 @@
 
 extern const int SCREEN_WIDTH, SCREEN_HEIGHT;
 
-SDL_Window* init(std::string windowTitle);
-SDL_Surface* loadMedia(std::string path);
-void close(SDL_Window* gWindow, SDL_Renderer* renderer);
+SDL_Window *init(std::string windowTitle);
+SDL_Surface *loadMedia(std::string path);
+void close(SDL_Window *gWindow, SDL_Renderer *renderer);
 
+typedef struct ball
+{
+	int x;
+	int y;
+	int vx;
+	int vy;
+	int r;
+	unsigned int red;
+	unsigned int green;
+	unsigned int blue;
+};
 
 #endif
