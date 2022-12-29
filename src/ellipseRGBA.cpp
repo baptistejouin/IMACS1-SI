@@ -24,6 +24,7 @@ Ellipse getEllipseRGBA()
 	ellipse.coordinates.x = coordinates.x;
 	ellipse.coordinates.y = coordinates.y;
 
+	// Définition du vecteur directeur de l'ellipse
 	Ellipse_Direction direction = getRandomDirectionVector(BALLS_V_MIN, BALLS_V_MAX);
 	ellipse.direction.vx = direction.vx;
 	ellipse.direction.vy = direction.vy;
