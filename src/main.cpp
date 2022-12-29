@@ -1,11 +1,12 @@
+#include "constants.h"
 #include "application_ui.h"
 #include "SDL2_gfxPrimitives.h"
 #include "ellipseRGBA.h"
 
-void draw(SDL_Renderer *renderer)
+void draw(SDL_Renderer *renderer, Ball ellipses[])
 {
     /* Remplissez cette fonction pour faire l'affichage du jeu */
-    SDL_Rect ellipseRect = drawEllipseRGBA(renderer);
+    drawEllipses(renderer, ellipses);
 };
 
 bool handleEvent()
@@ -40,6 +41,14 @@ int main(int argc, char **argv)
     // Temps de début de la boucle de mise à jour
     Uint32 startTime = SDL_GetTicks();
 
+    // Initialisation des ellipses
+    Ball ellipses[BALLS_COUNT];
+
+    for (auto &ellipse : ellipses)
+    {
+        ellipse = getEllipseRGBA();
+    }
+
     /*  GAME LOOP  */
     while (true)
     {
@@ -61,7 +70,7 @@ int main(int argc, char **argv)
         // DESSIN
         // Calcul de la distance parcourue par l'ellipse en fonction de la vitesse et du temps écoulé
 
-        draw(renderer);
+        draw(renderer, ellipses);
 
         // Mise à jour de l'affichage
         SDL_RenderPresent(renderer);

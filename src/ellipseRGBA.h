@@ -16,4 +16,8 @@ Ellipse_Color getRandomColor();
 // Générer un position aléatoire à partir de la hauteur et de la largeur d'un plan
 Ellipse_Coordinates getRandomCoordinates(int width, int height);
 
-SDL_Rect drawEllipseRGBA(SDL_Renderer *renderer);
+// Générer des ellipses en RGBA
+Ball getEllipseRGBA();
+
+// Dessiner des ellipses données dans un renderer donné
+void drawEllipses(SDL_Renderer *renderer, Ball ellipse[]);

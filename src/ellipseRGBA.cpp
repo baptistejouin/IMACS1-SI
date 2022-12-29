@@ -4,21 +4,29 @@
 #include "SDL2_gfxPrimitives.h"
 #include "ellipseRGBA.h"
 
-SDL_Rect drawEllipseRGBA(SDL_Renderer *renderer)
+Ball getEllipseRGBA()
 {
-	// Définition des dimensions de l'ellipse
-	SDL_Rect ellipseRect;
-	ellipseRect.w = 50;
-	ellipseRect.h = 50;
+	// Définition des dimensions de l'ellipse à partir du rayon
+	Ball ellipse;
+	ellipse.r = 10;
 
 	// Définition des couleurs de l'ellipse (avec décalage du centre de rotation pour éviter les débordements)
 	Ellipse_Color color = getRandomColor();
+	ellipse.red = color.r;
+	ellipse.green = color.g;
+	ellipse.blue = color.b;
+	ellipse.alpha = color.a;
+
 	Ellipse_Coordinates coordinates = getRandomCoordinates(SCREEN_WIDTH, SCREEN_HEIGHT);
+	ellipse.x = coordinates.x;
+	ellipse.y = coordinates.y;
 
-	// Dessiner l'ellipse
-	filledEllipseRGBA(renderer, coordinates.x + ellipseRect.w / 2, coordinates.y + ellipseRect.h / 2, ellipseRect.w / 2, ellipseRect.h / 2, color.r, color.g, color.b, color.a);
+	// TODO: Utiliser `vx` et `vy` pour la direction de mouvement, générer ces valeurs aléatoirement
+	// Ellipse_Direction
+	ellipse.vx = 0;
+	ellipse.vy = 0;
 
-	return ellipseRect;
+	return ellipse;
 }
 
 Ellipse_Color getRandomColor()
@@ -47,8 +55,18 @@ Ellipse_Coordinates getRandomCoordinates(int width, int height)
 	std::uniform_int_distribution<> dis2(0, height);
 
 	// // Génération de coordonnées aléatoire
-	int y = dis1(gen);
-	int x = dis2(gen);
+	int x = dis1(gen);
+	int y = dis2(gen);
 
 	return {x, y};
+}
+
+void drawEllipses(SDL_Renderer *renderer, Ball ellipse[])
+{
+	// Boucler dans le toute les ellipses
+	for (size_t i = 0; i < BALLS_COUNT + 1; i++)
+	{
+		// Dessiner l'ellipse
+		filledEllipseRGBA(renderer, ellipse[i].x, ellipse[i].y, ellipse[i].r, ellipse[i].r, ellipse[i].red, ellipse[i].green, ellipse[i].blue, ellipse[i].alpha);
+	}
 }

@@ -9,10 +9,10 @@ SDL_Window *init(std::string windowTitle);
 SDL_Surface *loadMedia(std::string path);
 void close(SDL_Window *gWindow, SDL_Renderer *renderer);
 
-typedef struct ball
+typedef struct Ball
 {
 	int x, y, vx, vy, r;
-	Uint8 red, green, blue;
-} ball;
+	Uint8 red, green, blue, alpha;
+} Ball;
 
 #endif
