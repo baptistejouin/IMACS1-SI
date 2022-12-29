@@ -1,13 +1,14 @@
 #include "constants.h"
 #include "application_ui.h"
 #include "SDL2_gfxPrimitives.h"
+#include "wall.h"
 #include "ellipseRGBA.h"
 
-void draw(SDL_Renderer *renderer, Ball ellipses[])
+void draw(SDL_Renderer *renderer, Ball ellipses[], Walls walls)
 {
     /* Remplissez cette fonction pour faire l'affichage du jeu */
     drawEllipses(renderer, ellipses);
-    moveEllipes(ellipses);
+    moveEllipes(ellipses, walls);
 };
 
 bool handleEvent()
@@ -50,6 +51,9 @@ int main(int argc, char **argv)
         ellipse = getEllipseRGBA();
     }
 
+    // Initialisation des Murs
+    Walls walls = getAllWalls();
+
     /*  GAME LOOP  */
     while (true)
     {
@@ -71,7 +75,7 @@ int main(int argc, char **argv)
         // DESSIN
         // Calcul de la distance parcourue par l'ellipse en fonction de la vitesse et du temps écoulé
 
-        draw(renderer, ellipses);
+        draw(renderer, ellipses, walls);
 
         // Mise à jour de l'affichage
         SDL_RenderPresent(renderer);

@@ -32,4 +32,4 @@ Ball getEllipseRGBA();
 void drawEllipses(SDL_Renderer *renderer, Ball ellipse[]);
 
 // Mise à jour des coordonées des ellipses suivant leurs direction et leurs position
-void moveEllipes(Ball ellipse[]);
+void moveEllipes(Ball ellipse[], Walls walls);
