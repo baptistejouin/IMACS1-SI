@@ -7,6 +7,7 @@ void draw(SDL_Renderer *renderer, Ball ellipses[])
 {
     /* Remplissez cette fonction pour faire l'affichage du jeu */
     drawEllipses(renderer, ellipses);
+    moveEllipes(ellipses);
 };
 
 bool handleEvent()

@@ -21,10 +21,9 @@ Ball getEllipseRGBA()
 	ellipse.x = coordinates.x;
 	ellipse.y = coordinates.y;
 
-	// TODO: Utiliser `vx` et `vy` pour la direction de mouvement, générer ces valeurs aléatoirement
-	// Ellipse_Direction
-	ellipse.vx = 0;
-	ellipse.vy = 0;
+	// TODO: Meilleur orgnanisation si dans "Ellipse_Direction"
+	ellipse.vx = getRandomDirectionVector(BALLS_VX_MIN, BALLS_VX_MAX);
+	ellipse.vy = getRandomDirectionVector(BALLS_VY_MIN, BALLS_VY_MAX);
 
 	return ellipse;
 }
@@ -55,10 +54,24 @@ Ellipse_Coordinates getRandomCoordinates(int width, int height)
 	std::uniform_int_distribution<> dis2(0, height);
 
 	// // Génération de coordonnées aléatoire
-	int x = dis1(gen);
-	int y = dis2(gen);
+	int x = dis1(gen), y = dis2(gen);
 
 	return {x, y};
+}
+
+int getRandomDirectionVector(int min, int max)
+{
+	// Création d'un générateur de nombres aléatoires
+	std::random_device rd;
+	std::mt19937 gen(rd());
+
+	// Création d'une distribution uniforme entre les limites
+	std::uniform_int_distribution<> dis(min, max);
+
+	int v = dis(gen);
+
+	// TODO: Excule les valeurs 0 et 1, car sinon l'ellipse ne bougera juste pas
+	return v;
 }
 
 void drawEllipses(SDL_Renderer *renderer, Ball ellipse[])
@@ -68,5 +81,15 @@ void drawEllipses(SDL_Renderer *renderer, Ball ellipse[])
 	{
 		// Dessiner l'ellipse
 		filledEllipseRGBA(renderer, ellipse[i].x, ellipse[i].y, ellipse[i].r, ellipse[i].r, ellipse[i].red, ellipse[i].green, ellipse[i].blue, ellipse[i].alpha);
+	}
+}
+
+void moveEllipes(Ball ellipse[])
+{
+	for (size_t i = 0; i < BALLS_COUNT + 1; i++)
+	{
+		// Changement des postions de l'ellipse
+		ellipse[i].x += BALLS_SPEED * ellipse[i].vx;
+		ellipse[i].y += BALLS_SPEED * ellipse[i].vy;
 	}
 }
