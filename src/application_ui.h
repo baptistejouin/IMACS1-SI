@@ -19,6 +19,6 @@ typedef struct ball
 	unsigned int red;
 	unsigned int green;
 	unsigned int blue;
-};
+} ball;
 
 #endif
