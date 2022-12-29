@@ -4,7 +4,7 @@
 #include "wall.h"
 #include "ellipseRGBA.h"
 
-void draw(SDL_Renderer *renderer, Ball ellipses[], Walls walls)
+void draw(SDL_Renderer *renderer, Ellipse ellipses[], Walls walls)
 {
     /* Remplissez cette fonction pour faire l'affichage du jeu */
     drawEllipses(renderer, ellipses);
@@ -44,7 +44,7 @@ int main(int argc, char **argv)
     Uint32 startTime = SDL_GetTicks();
 
     // Initialisation des ellipses
-    Ball ellipses[BALLS_COUNT];
+    Ellipse ellipses[BALLS_COUNT];
 
     for (auto &ellipse : ellipses)
     {

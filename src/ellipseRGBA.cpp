@@ -5,28 +5,28 @@
 #include "wall.h"
 #include "ellipseRGBA.h"
 
-Ball getEllipseRGBA()
+Ellipse getEllipseRGBA()
 {
-	Ball ellipse;
+	Ellipse ellipse;
 
 	// Définition des dimensions de l'ellipse à partir du rayon
-	ellipse.r = BALL_RADIUS;
+	ellipse.rad = BALL_RADIUS;
 
 	// Définition des couleurs de l'ellipse
 	Ellipse_Color color = getRandomColor();
-	ellipse.red = color.r;
-	ellipse.green = color.g;
-	ellipse.blue = color.b;
-	ellipse.alpha = color.a;
+	ellipse.color.r = color.r;
+	ellipse.color.g = color.g;
+	ellipse.color.b = color.b;
+	ellipse.color.a = color.a;
 
 	// Définition des coordonnées de l'ellipse (avec décalage de l'origine pour éviter les débordements)
 	Ellipse_Coordinates coordinates = getRandomCoordinates(SCREEN_WIDTH, SCREEN_HEIGHT);
-	ellipse.x = coordinates.x;
-	ellipse.y = coordinates.y;
+	ellipse.coordinates.x = coordinates.x;
+	ellipse.coordinates.y = coordinates.y;
 
-	// TODO: Meilleur orgnanisation si dans "Ellipse_Direction"
-	ellipse.vx = getRandomDirectionVector(BALLS_VX_MIN, BALLS_VX_MAX);
-	ellipse.vy = getRandomDirectionVector(BALLS_VY_MIN, BALLS_VY_MAX);
+	Ellipse_Direction direction = getRandomDirectionVector(BALLS_V_MIN, BALLS_V_MAX);
+	ellipse.direction.vx = direction.vx;
+	ellipse.direction.vy = direction.vy;
 
 	return ellipse;
 }
@@ -63,7 +63,7 @@ Ellipse_Coordinates getRandomCoordinates(int width, int height)
 	return {x, y};
 }
 
-int getRandomDirectionVector(int min, int max)
+Ellipse_Direction getRandomDirectionVector(int min, int max)
 {
 	// Création d'un générateur de nombres aléatoires
 	std::random_device rd;
@@ -72,59 +72,47 @@ int getRandomDirectionVector(int min, int max)
 	// Création d'une distribution uniforme entre les limites
 	std::uniform_int_distribution<> dis(min, max);
 
-	int v = 0;
+	float vx, vy = 0;
 
 	do
 	{
-		v = dis(gen);
+		vx = dis(gen);
+		vy = dis(gen);
 		// On exclu la valeur 0, sinon l'ellipse ne bougera pas (vecteur nul)
-	} while (v == 0);
+	} while (vx == 0 || vy == 0);
 
-	return v;
+	return {vx, vy};
 }
 
-void drawEllipses(SDL_Renderer *renderer, Ball ellipse[])
+void drawEllipses(SDL_Renderer *renderer, Ellipse ellipse[])
 {
 	// Boucler dans le toute les ellipses
 	for (size_t i = 0; i < BALLS_COUNT + 1; i++)
 	{
 		// Dessiner l'ellipse
-		filledEllipseRGBA(renderer, ellipse[i].x, ellipse[i].y, ellipse[i].r, ellipse[i].r, ellipse[i].red, ellipse[i].green, ellipse[i].blue, ellipse[i].alpha);
+		filledEllipseRGBA(renderer, ellipse[i].coordinates.x, ellipse[i].coordinates.y, ellipse[i].rad, ellipse[i].rad, ellipse[i].color.r, ellipse[i].color.g, ellipse[i].color.b, ellipse[i].color.a);
 	}
 }
 
-void moveEllipes(Ball ellipse[], Walls walls)
+void moveEllipes(Ellipse ellipse[], Walls walls)
 {
 	for (size_t i = 0; i < BALLS_COUNT + 1; i++)
 	{
-		// ActualX = ellipse[i].x + ellipse->r/2;
-		// ActualY = ellipse[i].y + ellipse->r/2;
-
 		// Changement des postions de l'ellipse
-		ellipse[i].x += BALLS_SPEED * ellipse[i].vx;
-		ellipse[i].y += BALLS_SPEED * ellipse[i].vy;
+		ellipse[i].coordinates.x += BALLS_SPEED * ellipse[i].direction.vx;
+		ellipse[i].coordinates.y += BALLS_SPEED * ellipse[i].direction.vy;
 
 		// Détection des collisions, inverser les directions si collision avec un mur. On prend en compte le rayon des ellipses pour ne pas seulement limiter la collision aux coordonnées du centre.
 
-		// Le mur gauche
-		if (ellipse[i].x - BALL_RADIUS <= walls.wallLeft.x1)
+		// Le mur gauche ou le mur droit
+		if ((ellipse[i].coordinates.x - BALL_RADIUS <= walls.wallLeft.x1) || (ellipse[i].coordinates.x + BALL_RADIUS >= walls.wallRight.x1))
 		{
-			ellipse[i].vx *= -1;
+			ellipse[i].direction.vx *= -1;
 		}
-		// Le mur droit
-		if (ellipse[i].x + BALL_RADIUS >= walls.wallRight.x1)
+		// Le mur du haut ou du bas
+		if ((ellipse[i].coordinates.y - BALL_RADIUS <= walls.wallTop.y1) || (ellipse[i].coordinates.y + BALL_RADIUS >= walls.wallBottom.y1))
 		{
-			ellipse[i].vx *= -1;
-		}
-		// Le mur du haut
-		if (ellipse[i].y - BALL_RADIUS >= walls.wallTop.y1)
-		{
-			ellipse[i].vy *= -1;
-		}
-		// Le mur du bas
-		if (ellipse[i].y + BALL_RADIUS <= walls.wallBottom.y1)
-		{
-			ellipse[i].vy *= -1;
+			ellipse[i].direction.vy *= -1;
 		}
 	}
 }
