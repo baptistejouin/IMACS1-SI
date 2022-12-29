@@ -2,11 +2,13 @@
 
 typedef struct Ellipse_Color
 {
-	Uint8 r;
-	Uint8 b;
-	Uint8 g;
-	Uint8 a;
+	Uint8 r, g, b, a;
 } Ellipse_Color;
+
+typedef struct Ellipse_Coordinates
+{
+	int x, y;
+} Ellipse_Coordinates;
 
 Ellipse_Color getRandomColor();
 SDL_Rect drawEllipseRGBA(SDL_Renderer *renderer);

@@ -23,14 +23,15 @@ SDL_Rect drawEllipseRGBA(SDL_Renderer *renderer)
 
 Ellipse_Color getRandomColor()
 {
+	// Création d'un générateur de nombres aléatoires
 	std::random_device rd;
 	std::mt19937 gen(rd());
+
+	// Création d'une distribution uniforme entre les limites
 	std::uniform_int_distribution<> dis(0, 255);
 
-	Uint8 r = dis(gen);
-	Uint8 g = dis(gen);
-	Uint8 b = dis(gen);
-	Uint8 a = 255;
+	// Génération de nombre aléatoire
+	Uint8 r = dis(gen), g = dis(gen), b = dis(gen), a = 255;
 
 	return {r, g, b, a};
 }

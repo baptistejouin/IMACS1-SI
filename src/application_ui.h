@@ -11,14 +11,8 @@ void close(SDL_Window *gWindow, SDL_Renderer *renderer);
 
 typedef struct ball
 {
-	int x;
-	int y;
-	int vx;
-	int vy;
-	int r;
-	unsigned int red;
-	unsigned int green;
-	unsigned int blue;
+	int x, y, vx, vy, r;
+	Uint8 red, green, blue;
 } ball;
 
 #endif
