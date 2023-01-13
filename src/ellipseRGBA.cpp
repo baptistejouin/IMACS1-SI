@@ -7,7 +7,7 @@
 
 std::random_device rd;
 
-Ellipse getEllipseRGBA()
+Ellipse getEllipseRGBA(Walls *walls)
 {
 	Ellipse ellipse;
 
@@ -22,12 +22,13 @@ Ellipse getEllipseRGBA()
 	ellipse.color.a = color.a;
 
 	// Définition des coordonnées de l'ellipse (avec décalage de l'origine pour éviter les débordements)
-	Ellipse_Coordinates coordinates = getRandomCoordinates(SCREEN_WIDTH, SCREEN_HEIGHT);
+	Ellipse_Coordinates coordinates = getRandomCoordinates(walls);
+
 	ellipse.coordinates.x = coordinates.x;
 	ellipse.coordinates.y = coordinates.y;
 
 	// Définition du vecteur directeur de l'ellipse
-	Ellipse_Direction direction = getRandomDirectionVector(BALLS_V_MIN, BALLS_V_MAX);
+	Ellipse_Direction direction = getRandomDirectionVector(BALLS_VECT_MAX);
 	ellipse.direction.vx = direction.vx;
 	ellipse.direction.vy = direction.vy;
 
@@ -48,15 +49,16 @@ Ellipse_Color getRandomColor()
 	return {r, g, b, a};
 }
 
-Ellipse_Coordinates getRandomCoordinates(int width, int height)
+Ellipse_Coordinates getRandomCoordinates(Walls *walls)
 {
 	// Création d'un générateur de nombres aléatoires
 	std::mt19937 gen(rd());
 
 	// Création d'une distribution uniforme entre les limites
-	// Les coordonnées dépendent du rayon des ellipses afin de toujours les faires apparaitre entièrement dans la fenêtre, tant que le diamètre des ellipses ne dépasse pas la taille de la fenêtre, nous sommes assurés qu'elles seront comprises dedans.
-	std::uniform_int_distribution<> dis1(0 + BALL_RADIUS, width - BALL_RADIUS);
-	std::uniform_int_distribution<> dis2(0 + BALL_RADIUS, height - BALL_RADIUS);
+	// Les coordonnées dépendent du rayon des ellipses afin de toujours les faires apparaitre entièrement dans la fenêtre, tant que le diamètre des ellipses ne dépasse pas la taille de la fenêtre, nous sommes assurés qu'elles seront comprises dedans. On ajoute 1 pour la marge de la première frame.
+	// TODO: Supporter les murs penché (ici ça n'est pas fait pour)
+	std::uniform_int_distribution<> dis1(walls->wallTop.x1 + (BALL_RADIUS + 1), walls->wallTop.x2 - (BALL_RADIUS + 1));
+	std::uniform_int_distribution<> dis2(walls->wallLeft.y1 + (BALL_RADIUS + 1), walls->wallLeft.y2 - (BALL_RADIUS + 1));
 
 	// // Génération de coordonnées aléatoire
 	int x = dis1(gen), y = dis2(gen);
@@ -64,13 +66,13 @@ Ellipse_Coordinates getRandomCoordinates(int width, int height)
 	return {x, y};
 }
 
-Ellipse_Direction getRandomDirectionVector(int min, int max)
+Ellipse_Direction getRandomDirectionVector(int maxVect)
 {
 	// Création d'un générateur de nombres aléatoires
 	std::mt19937 gen(rd());
 
 	// Création d'une distribution uniforme entre les limites
-	std::uniform_int_distribution<> dis(min, max);
+	std::uniform_int_distribution<> dis((maxVect * -1), maxVect);
 
 	float vx, vy = 0;
 
@@ -94,7 +96,7 @@ void drawEllipses(SDL_Renderer *renderer, Ellipse ellipse[])
 	}
 }
 
-void moveEllipes(Ellipse ellipse[], Walls walls)
+void moveEllipes(Ellipse ellipse[], Walls *walls)
 {
 	for (size_t i = 0; i < BALLS_COUNT + 1; i++)
 	{
@@ -105,12 +107,12 @@ void moveEllipes(Ellipse ellipse[], Walls walls)
 		// Détection des collisions, inverser les directions si collision avec un mur. On prend en compte le rayon des ellipses pour ne pas seulement limiter la collision aux coordonnées du centre.
 
 		// Le mur gauche ou le mur droit
-		if ((ellipse[i].coordinates.x - BALL_RADIUS <= walls.wallLeft.x1) || (ellipse[i].coordinates.x + BALL_RADIUS >= walls.wallRight.x1))
+		if ((ellipse[i].coordinates.x - BALL_RADIUS <= walls->wallLeft.x1) || (ellipse[i].coordinates.x + BALL_RADIUS >= walls->wallRight.x1))
 		{
 			ellipse[i].direction.vx *= -1;
 		}
 		// Le mur du haut ou du bas
-		if ((ellipse[i].coordinates.y - BALL_RADIUS <= walls.wallTop.y1) || (ellipse[i].coordinates.y + BALL_RADIUS >= walls.wallBottom.y1))
+		if ((ellipse[i].coordinates.y - BALL_RADIUS <= walls->wallTop.y1) || (ellipse[i].coordinates.y + BALL_RADIUS >= walls->wallBottom.y1))
 		{
 			ellipse[i].direction.vy *= -1;
 		}

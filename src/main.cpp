@@ -4,11 +4,13 @@
 #include "wall.h"
 #include "ellipseRGBA.h"
 
-void draw(SDL_Renderer *renderer, Ellipse ellipses[], Walls walls)
+void draw(SDL_Renderer *renderer, Ellipse ellipses[], Walls *walls)
 {
     /* Remplissez cette fonction pour faire l'affichage du jeu */
+    // TODO: Uniquement l'affichage, le traitement doit être fait un amont. Deuxièmement, la fonction draw() ne prend pas en compte le traitement des ellipses et des murs avant l'affichage. Cela doit être fait avant que les ellipses et les murs ne soient dessinés.
     drawEllipses(renderer, ellipses);
     moveEllipes(ellipses, walls);
+    drawWalls(renderer, walls);
 };
 
 bool handleEvent()
@@ -27,7 +29,6 @@ int main(int argc, char **argv)
 {
     SDL_Window *gWindow;
     SDL_Renderer *renderer;
-    bool is_running = true;
 
     // Creation de la fenetre
     gWindow = init("Awesome Game");
@@ -40,52 +41,35 @@ int main(int argc, char **argv)
 
     renderer = SDL_CreateRenderer(gWindow, -1, 0); // SDL_RENDERER_PRESENTVSYNC
 
-    // Temps de début de la boucle de mise à jour
-    Uint32 startTime = SDL_GetTicks();
-
-    // Initialisation des ellipses
-    Ellipse ellipses[BALLS_COUNT];
-
-    for (auto &ellipse : ellipses)
-    {
-        ellipse = getEllipseRGBA();
-    }
-
+    /*  GAME INIT  */
     // Initialisation des Murs
     Walls walls = getAllWalls();
 
-    /*  GAME LOOP  */
-    while (true)
+    // Initialisation des ellipses
+    Ellipse ellipses[BALLS_COUNT];
+    for (auto &ellipse : ellipses)
     {
-        // Calcul du temps écoulé depuis le début de la boucle de mise à jour
-        Uint32 elapsedTime = SDL_GetTicks() - startTime;
-        // INPUTS
-        is_running = handleEvent();
-        if (!is_running)
-            break;
+        ellipse = getEllipseRGBA(&walls);
+    }
 
-        // GESTION ACTEURS
-
-        // ...
+    /*  GAME LOOP  */
+    do
+    {
+        // TODO: GESTION ACTEURS
 
         // EFFACAGE FRAME
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
 
         // DESSIN
-        // Calcul de la distance parcourue par l'ellipse en fonction de la vitesse et du temps écoulé
+        draw(renderer, ellipses, &walls);
 
-        draw(renderer, ellipses, walls);
-
-        // Mise à jour de l'affichage
+        // UPDATE
         SDL_RenderPresent(renderer);
 
         // PAUSE en ms
         SDL_Delay(1000 / 30);
-
-        // Mise à jour du temps de début de la boucle de mise à jour
-        startTime = SDL_GetTicks();
-    }
+    } while (handleEvent());
 
     // Free resources and close SDL
     close(gWindow, renderer);

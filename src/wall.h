@@ -12,3 +12,4 @@ typedef struct Walls
 } Walls;
 
 Walls getAllWalls();
+void drawWalls(SDL_Renderer *renderer, Walls *walls);
