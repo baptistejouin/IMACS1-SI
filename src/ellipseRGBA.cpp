@@ -5,6 +5,8 @@
 #include "wall.h"
 #include "ellipseRGBA.h"
 
+std::random_device rd;
+
 Ellipse getEllipseRGBA()
 {
 	Ellipse ellipse;
@@ -35,7 +37,6 @@ Ellipse getEllipseRGBA()
 Ellipse_Color getRandomColor()
 {
 	// Création d'un générateur de nombres aléatoires
-	std::random_device rd;
 	std::mt19937 gen(rd());
 
 	// Création d'une distribution uniforme entre les limites
@@ -50,7 +51,6 @@ Ellipse_Color getRandomColor()
 Ellipse_Coordinates getRandomCoordinates(int width, int height)
 {
 	// Création d'un générateur de nombres aléatoires
-	std::random_device rd;
 	std::mt19937 gen(rd());
 
 	// Création d'une distribution uniforme entre les limites
@@ -67,7 +67,6 @@ Ellipse_Coordinates getRandomCoordinates(int width, int height)
 Ellipse_Direction getRandomDirectionVector(int min, int max)
 {
 	// Création d'un générateur de nombres aléatoires
-	std::random_device rd;
 	std::mt19937 gen(rd());
 
 	// Création d'une distribution uniforme entre les limites
