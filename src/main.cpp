@@ -7,9 +7,7 @@
 void draw(SDL_Renderer *renderer, Ellipse ellipses[], Walls *walls)
 {
     /* Remplissez cette fonction pour faire l'affichage du jeu */
-    // TODO: Uniquement l'affichage, le traitement doit être fait un amont. Deuxièmement, la fonction draw() ne prend pas en compte le traitement des ellipses et des murs avant l'affichage. Cela doit être fait avant que les ellipses et les murs ne soient dessinés.
     drawEllipses(renderer, ellipses);
-    moveEllipes(ellipses, walls);
     drawWalls(renderer, walls);
 };
 
@@ -66,6 +64,9 @@ int main(int argc, char **argv)
 
         // UPDATE
         SDL_RenderPresent(renderer);
+
+        // MISE À JOUR DU JEU POUR LA PROCHAINE FRAME
+        moveEllipes(ellipses, &walls);
 
         // PAUSE en ms
         SDL_Delay(1000 / 30);
