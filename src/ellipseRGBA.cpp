@@ -14,6 +14,9 @@ Ellipse getEllipseRGBA(Walls *walls)
 	// Définition des dimensions de l'ellipse à partir du rayon
 	ellipse.rad = BALL_RADIUS;
 
+	// Défini si l'ellipse est visible ou non (oui par défaut)
+	ellipse.visible = true;
+
 	// Définition des couleurs de l'ellipse
 	Ellipse_Color color = getRandomColor();
 	ellipse.color.r = color.r;
@@ -107,39 +110,60 @@ void moveEllipes(Ellipse ellipse[], Walls *walls)
 	// TODO: tableau de taille variable OU liste chaîné
 	for (size_t i = 0; i < BALLS_COUNT + 1; i++)
 	{
-		// Génère un nombre aléatoire entre 1 et 4 pour pouvoir le multiplier au BALLS_SPEED
-		int randomSpeed = (1 + (rand() % 4)) * BALLS_SPEED;
-		// TODO: FIX THIS (bug, ball trop rapide, voir comment on peut différencier direction et vitesse)
-		randomSpeed = 1;
-
-		// Changement des postions de l'ellipse
-		ellipse[i].coordinates.x += randomSpeed * ellipse[i].direction.vx;
-		ellipse[i].coordinates.y += randomSpeed * ellipse[i].direction.vy;
-
-		// Coordonnée du point mouvant
-		int xb = ellipse[i].coordinates.x;
-		int yb = ellipse[i].coordinates.y;
-
-		// Détection des collisions, inverser les directions si collision avec un mur. On prend en compte le rayon des ellipses pour ne pas seulement limiter la collision aux coordonnées du centre.
-		int distanceWallLeft = distPointWall(walls->wallLeft.x1, walls->wallLeft.y1, walls->wallLeft.x2, walls->wallLeft.y2, xb, yb) - BALL_RADIUS;
-		int distanceWallRight = distPointWall(walls->wallRight.x1, walls->wallRight.y1, walls->wallRight.x2, walls->wallRight.y2, xb, yb) + BALL_RADIUS;
-		int distanceWallTop = distPointWall(walls->wallTop.x1, walls->wallTop.y1, walls->wallTop.x2, walls->wallTop.y2, xb, yb) + BALL_RADIUS;
-		int distanceWallBottom = distPointWall(walls->wallBottom.x1, walls->wallBottom.y1, walls->wallBottom.x2, walls->wallBottom.y2, xb, yb) - BALL_RADIUS;
-
-		if (distanceWallLeft <= 0)
+		// Si pas visible, pas de calcules
+		if (ellipse[i].visible)
 		{
-			// TODO: prendre en compte l'angle du mur penché (j'ai pas le calcul encore)
-			// ellipse[i].direction.vy *= (mLeft * -1);
-			ellipse[i].direction.vx *= -1;
+
+			// Génère un nombre aléatoire entre 1 et 4 pour pouvoir le multiplier au BALLS_SPEED
+			int randomSpeed = (1 + (rand() % 4)) * BALLS_SPEED;
+			// TODO: FIX THIS (bug, ball trop rapide, voir comment on peut différencier direction et vitesse)
+			randomSpeed = 1;
+
+			// Changement des postions de l'ellipse
+			ellipse[i].coordinates.x += randomSpeed * ellipse[i].direction.vx;
+			ellipse[i].coordinates.y += randomSpeed * ellipse[i].direction.vy;
+
+			// Coordonnée du point mouvant
+			int xb = ellipse[i].coordinates.x;
+			int yb = ellipse[i].coordinates.y;
+
+			// Détection des collisions, inverser les directions si collision avec un mur. On prend en compte le rayon des ellipses pour ne pas seulement limiter la collision aux coordonnées du centre.
+			int distanceWallLeft = distPointWall(walls->wallLeft.x1, walls->wallLeft.y1, walls->wallLeft.x2, walls->wallLeft.y2, xb, yb) - BALL_RADIUS;
+			int distanceWallRight = distPointWall(walls->wallRight.x1, walls->wallRight.y1, walls->wallRight.x2, walls->wallRight.y2, xb, yb) + BALL_RADIUS;
+			int distanceWallTop = distPointWall(walls->wallTop.x1, walls->wallTop.y1, walls->wallTop.x2, walls->wallTop.y2, xb, yb) + BALL_RADIUS;
+			int distanceWallBottom = distPointWall(walls->wallBottom.x1, walls->wallBottom.y1, walls->wallBottom.x2, walls->wallBottom.y2, xb, yb) - BALL_RADIUS;
+
+			if (distanceWallLeft <= 0)
+			{
+				// TODO: prendre en compte l'angle du mur penché (j'ai pas le calcul encore)
+				// ellipse[i].direction.vy *= (mLeft * -1);
+				ellipse[i].direction.vx *= -1;
+			}
+
+			if (distanceWallRight >= 0)
+			{
+				ellipse[i].direction.vx *= -1;
+			}
+			if (distanceWallBottom <= 0 || distanceWallTop >= 0)
+			{
+				ellipse[i].direction.vy *= -1;
+			}
 		}
+	}
+}
 
-		if (distanceWallRight >= 0)
+void handleOnClick(Ellipse ellipse[], int mouseX, int mouseY)
+{
+	// TODO: tableau de taille variable OU liste chaîné
+	for (size_t i = 0; i < BALLS_COUNT + 1; i++)
+	{
+		int x_diff = mouseX - ellipse[i].coordinates.x;
+		int y_diff = mouseY - ellipse[i].coordinates.y;
+		int distance = sqrt(x_diff * x_diff + y_diff * y_diff);
+
+		if (distance <= ellipse[i].rad)
 		{
-			ellipse[i].direction.vx *= -1;
-		}
-		if (distanceWallBottom <= 0 || distanceWallTop >= 0)
-		{
-			ellipse[i].direction.vy *= -1;
+			ellipse[i].visible = false;
 		}
 	}
 }

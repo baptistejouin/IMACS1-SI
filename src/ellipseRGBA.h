@@ -17,6 +17,7 @@ typedef struct Ellipse_Direction
 typedef struct Ellipse
 {
 	int rad;
+	bool visible;
 	Ellipse_Coordinates coordinates;
 	Ellipse_Direction direction;
 	Ellipse_Color color;
@@ -38,3 +39,6 @@ void drawEllipses(SDL_Renderer *renderer, Ellipse ellipse[]);
 
 // Mise à jour des coordonées des ellipses suivant leurs direction et leurs position
 void moveEllipes(Ellipse ellipse[], Walls *walls);
+
+// Gestion du click sur une ellise
+void handleOnClick(Ellipse ellipse[], int mouseX, int mouseY);

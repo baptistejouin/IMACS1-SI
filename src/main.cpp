@@ -3,26 +3,31 @@
 #include "SDL2_gfxPrimitives.h"
 #include "wall.h"
 #include "ellipseRGBA.h"
-#include "windows.h"
 #include "SDL2/SDL.h"
 
 void draw(SDL_Renderer *renderer, Ellipse ellipses[], Walls *walls)
 {
-    /* Remplissez cette fonction pour faire l'affichage du jeu */
+    /* Gestion de l'affichage du jeu */
     drawEllipses(renderer, ellipses);
     drawWalls(renderer, walls);
 };
 
-bool handleEvent()
+bool handleEvent(Ellipse ellipses[])
 {
-    /* Remplissez cette fonction pour gérer les inputs utilisateurs */
+    /* Gestion des inputs utilisateurs */
     SDL_Event e;
     while (SDL_PollEvent(&e))
     {
         if (e.type == SDL_QUIT)
             return false;
+        if (e.type == SDL_MOUSEBUTTONDOWN)
+        {
+            int mouseX, mouseY;
+            SDL_GetMouseState(&mouseX, &mouseY);
+            handleOnClick(ellipses, mouseX, mouseY);
+        }
+        return true;
     }
-    return true;
 }
 
 int main(int argc, char **argv)
@@ -30,7 +35,7 @@ int main(int argc, char **argv)
     SDL_Window *gWindow;
     SDL_Renderer *renderer;
 
-    // Creation de la fenetre
+    // Création de la fenêtre
     gWindow = init("Awesome Game");
 
     if (!gWindow)
@@ -55,8 +60,6 @@ int main(int argc, char **argv)
     /*  GAME LOOP  */
     do
     {
-        // TODO: GESTION ACTEURS
-
         // EFFACAGE FRAME
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
@@ -72,53 +75,8 @@ int main(int argc, char **argv)
 
         // PAUSE en ms
         SDL_Delay(1000 / 30);
-    } while (handleEvent());
+    } while (handleEvent(ellipses));
 
-    //Faire disparaître balles avec cliques
-    bool ellipse_visible=true;
-     while (true)
-    {
-        SDL_Event event;
-        while (SDL_PollEvent(&event))
-        {
-            if (event.type == SDL_QUIT)
-            {
-                SDL_Quit();
-                return 0;
-            }
-            if (event.type == SDL_MOUSEBUTTONDOWN)
-            {
-                int mouse_x, mouse_y;
-                SDL_GetMouseState(&mouse_x, &mouse_y);
-
-                int x_diff = mouse_x - ellipse.coordinates.x;
-                int y_diff = mouse_y - ellipse.coordinates.y;
-                int distance = sqrt(x_diff * x_diff + y_diff * y_diff);
-
-                if (distance <= ellipse.rad)
-                {
-                    ellipse_visible = false;
-                }
-            }
-        }
-
-        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-        SDL_RenderClear(renderer);
-
-        if (ellipse_visible)
-        {
-            SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
-            for (int i = 0; i < 360; i++)
-            {
-                float degInRad = i * M_PI / 180;
-                SDL_RenderDrawPoint(renderer, ellipse.coordinates.x + cos(degInRad) * ellipse.rad, ellipse.coordinates.y + sin(degInRad) * ellipse_r);
-            }
-        }
-
-        SDL_RenderPresent(renderer);
-    }
-
-    
     // Free resources and close SDL
     close(gWindow, renderer);
 
