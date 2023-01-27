@@ -107,16 +107,18 @@ void moveEllipes(Ellipse ellipse[], Walls *walls)
 	// TODO: tableau de taille variable OU liste chaîné
 	for (size_t i = 0; i < BALLS_COUNT + 1; i++)
 	{
-		// Changement des postions de l'ellipse
-		ellipse[i].coordinates.x += ellipse[i].direction.vx;
-		ellipse[i].coordinates.y += ellipse[i].direction.vy;
+		// Génère un nombre aléatoire entre 1 et 4 pour pouvoir le multiplier au BALLS_SPEED
+		int random = 1 + (rand() % 4);
 
-		// Détection des collisions, inverser les directions si collision avec un mur. On prend en compte le rayon des ellipses pour ne pas seulement limiter la collision aux coordonnées du centre.
+		// Changement des postions de l'ellipse
+		ellipse[i].coordinates.x += random * ellipse[i].direction.vx;
+		ellipse[i].coordinates.y += random * ellipse[i].direction.vy;
 
 		// Coordonnée du point mouvant
 		int xb = ellipse[i].coordinates.x;
 		int yb = ellipse[i].coordinates.y;
 
+		// Détection des collisions, inverser les directions si collision avec un mur. On prend en compte le rayon des ellipses pour ne pas seulement limiter la collision aux coordonnées du centre.
 		int distanceWallLeft = distPointWall(walls->wallLeft.x1, walls->wallLeft.y1, walls->wallLeft.x2, walls->wallLeft.y2, xb, yb) - BALL_RADIUS;
 		int distanceWallRight = distPointWall(walls->wallRight.x1, walls->wallRight.y1, walls->wallRight.x2, walls->wallRight.y2, xb, yb) + BALL_RADIUS;
 		int distanceWallTop = distPointWall(walls->wallTop.x1, walls->wallTop.y1, walls->wallTop.x2, walls->wallTop.y2, xb, yb) + BALL_RADIUS;
