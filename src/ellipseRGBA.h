@@ -11,7 +11,7 @@ typedef struct Ellipse_Coordinates
 } Ellipse_Coordinates;
 typedef struct Ellipse_Direction
 {
-	float vx, vy;
+	int vx, vy;
 } Ellipse_Direction;
 
 typedef struct Ellipse
