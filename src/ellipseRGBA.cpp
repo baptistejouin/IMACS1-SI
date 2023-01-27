@@ -95,12 +95,13 @@ void drawEllipses(SDL_Renderer *renderer, Ellipse ellipse[])
 }
 
 void moveEllipes(Ellipse ellipse[], Walls walls)
-{
+{	//Génère un nombre aléatoire entre 1 et 4 pour pouvoir le multiplier au BALLS_SPEED
+	int random = 1 + (rand() % 4);
 	for (size_t i = 0; i < BALLS_COUNT + 1; i++)
 	{
 		// Changement des postions de l'ellipse
-		ellipse[i].coordinates.x += BALLS_SPEED * ellipse[i].direction.vx;
-		ellipse[i].coordinates.y += BALLS_SPEED * ellipse[i].direction.vy;
+		ellipse[i].coordinates.x += random*BALLS_SPEED * ellipse[i].direction.vx;
+		ellipse[i].coordinates.y += random*BALLS_SPEED * ellipse[i].direction.vy;
 
 		// Détection des collisions, inverser les directions si collision avec un mur. On prend en compte le rayon des ellipses pour ne pas seulement limiter la collision aux coordonnées du centre.
 
