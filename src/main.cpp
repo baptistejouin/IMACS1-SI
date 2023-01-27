@@ -4,6 +4,7 @@
 #include "wall.h"
 #include "ellipseRGBA.h"
 #include "windows.h"
+#include "SDL2/SDL.h"
 
 void draw(SDL_Renderer *renderer, Ellipse ellipses[], Walls walls)
 {
@@ -89,6 +90,7 @@ int main(int argc, char **argv)
     }
 
     //Faire disparaître balles avec cliques
+    bool ellipse_visible=true;
      while (true)
     {
         SDL_Event event;
@@ -104,11 +106,11 @@ int main(int argc, char **argv)
                 int mouse_x, mouse_y;
                 SDL_GetMouseState(&mouse_x, &mouse_y);
 
-                int x_diff = mouse_x - ellipse_x;
-                int y_diff = mouse_y - ellipse_y;
+                int x_diff = mouse_x - ellipse.coordinates.x;
+                int y_diff = mouse_y - ellipse.coordinates.y;
                 int distance = sqrt(x_diff * x_diff + y_diff * y_diff);
 
-                if (distance <= ellipse_r)
+                if (distance <= ellipse.rad)
                 {
                     ellipse_visible = false;
                 }
@@ -124,7 +126,7 @@ int main(int argc, char **argv)
             for (int i = 0; i < 360; i++)
             {
                 float degInRad = i * M_PI / 180;
-                SDL_RenderDrawPoint(renderer, ellipse_x + cos(degInRad) * ellipse_r, ellipse_y + sin(degInRad) * ellipse_r);
+                SDL_RenderDrawPoint(renderer, ellipse.coordinates.x + cos(degInRad) * ellipse.rad, ellipse.coordinates.y + sin(degInRad) * ellipse_r);
             }
         }
 
