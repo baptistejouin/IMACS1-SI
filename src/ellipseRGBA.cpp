@@ -108,11 +108,13 @@ void moveEllipes(Ellipse ellipse[], Walls *walls)
 	for (size_t i = 0; i < BALLS_COUNT + 1; i++)
 	{
 		// Génère un nombre aléatoire entre 1 et 4 pour pouvoir le multiplier au BALLS_SPEED
-		int random = 1 + (rand() % 4);
+		int randomSpeed = (1 + (rand() % 4)) * BALLS_SPEED;
+		// TODO: FIX THIS (bug, ball trop rapide, voir comment on peut différencier direction et vitesse)
+		randomSpeed = 1;
 
 		// Changement des postions de l'ellipse
-		ellipse[i].coordinates.x += random * ellipse[i].direction.vx;
-		ellipse[i].coordinates.y += random * ellipse[i].direction.vy;
+		ellipse[i].coordinates.x += randomSpeed * ellipse[i].direction.vx;
+		ellipse[i].coordinates.y += randomSpeed * ellipse[i].direction.vy;
 
 		// Coordonnée du point mouvant
 		int xb = ellipse[i].coordinates.x;
