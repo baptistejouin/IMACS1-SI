@@ -7,7 +7,7 @@
 
 std::random_device rd;
 
-Ellipse getEllipseRGBA(Walls *walls)
+Ellipse getEllipseRGBA(Shape *shape)
 {
 	Ellipse ellipse;
 
@@ -25,7 +25,7 @@ Ellipse getEllipseRGBA(Walls *walls)
 	ellipse.color.a = color.a;
 
 	// Définition des coordonnées de l'ellipse (avec décalage de l'origine pour éviter les débordements)
-	Ellipse_Coordinates coordinates = getRandomCoordinates(walls);
+	Ellipse_Coordinates coordinates = getRandomCoordinates(shape);
 
 	ellipse.coordinates.x = coordinates.x;
 	ellipse.coordinates.y = coordinates.y;
@@ -52,16 +52,16 @@ Ellipse_Color getRandomColor()
 	return {r, g, b, a};
 }
 
-Ellipse_Coordinates getRandomCoordinates(Walls *walls)
+// TODO: On voudrais que la balle ne puisse pas apparaitre dans un mur, pour l'instant c'est pas le cas
+Ellipse_Coordinates getRandomCoordinates(Shape *shape)
 {
 	// Création d'un générateur de nombres aléatoires
 	std::mt19937 gen(rd());
 
 	// Création d'une distribution uniforme entre les limites
 	// Les coordonnées dépendent du rayon des ellipses afin de toujours les faires apparaitre entièrement dans la fenêtre, tant que le diamètre des ellipses ne dépasse pas la taille de la fenêtre, nous sommes assurés qu'elles seront comprises dedans. On ajoute 1 pour la marge de la première frame.
-	// TODO: Supporter les murs penché dans l'apparition (choix de coordonée) (ici ça n'est pas fait pour, donc il y peut y avoir des soucis)
-	std::uniform_int_distribution<> dis1(walls->wallTop.x1 + (BALL_RADIUS + 1), walls->wallTop.x2 - (BALL_RADIUS + 1));
-	std::uniform_int_distribution<> dis2(walls->wallLeft.y1 + (BALL_RADIUS + 1), walls->wallLeft.y2 - (BALL_RADIUS + 1));
+	std::uniform_int_distribution<> dis1(0 + (BALL_RADIUS + 1), SCREEN_WIDTH - (BALL_RADIUS + 1));
+	std::uniform_int_distribution<> dis2(0 + (BALL_RADIUS + 1), SCREEN_HEIGHT - (BALL_RADIUS + 1));
 
 	// // Génération de coordonnées aléatoire
 	int x = dis1(gen), y = dis2(gen);
@@ -99,21 +99,15 @@ void drawEllipses(SDL_Renderer *renderer, Ellipse ellipse[])
 	}
 }
 
-int distPointWall(int x1, int y1, int x2, int y2, int xb, int yb)
+void moveEllipes(Ellipse ellipse[], Shape *shape)
 {
-	// projection vectoriel, juste pour la distance
-	return ((y2 - y1) * xb - (x2 - x1) * yb + x2 * y1 - y2 * x1) / sqrt(pow((y2 - y1), 2) + pow((x2 - x1), 2));
-}
-
-void moveEllipes(Ellipse ellipse[], Walls *walls)
-{
-	// TODO: tableau de taille variable OU liste chaîné
+	Shape windowWalls = getWindowWalls();
+	// TODO: changer en tableau de taille variable OU liste chaîné
 	for (size_t i = 0; i < BALLS_COUNT + 1; i++)
 	{
 		// Si pas visible, pas de calcules
 		if (ellipse[i].visible)
 		{
-
 			// Génère un nombre aléatoire entre 1 et 4 pour pouvoir le multiplier au BALLS_SPEED
 			int randomSpeed = (1 + (rand() % 4)) * BALLS_SPEED;
 			// TODO: FIX THIS (bug, ball trop rapide, voir comment on peut différencier direction et vitesse)
@@ -127,24 +121,11 @@ void moveEllipes(Ellipse ellipse[], Walls *walls)
 			int xb = ellipse[i].coordinates.x;
 			int yb = ellipse[i].coordinates.y;
 
-			// Détection des collisions, inverser les directions si collision avec un mur. On prend en compte le rayon des ellipses pour ne pas seulement limiter la collision aux coordonnées du centre.
-			int distanceWallLeft = distPointWall(walls->wallLeft.x1, walls->wallLeft.y1, walls->wallLeft.x2, walls->wallLeft.y2, xb, yb) - BALL_RADIUS;
-			int distanceWallRight = distPointWall(walls->wallRight.x1, walls->wallRight.y1, walls->wallRight.x2, walls->wallRight.y2, xb, yb) + BALL_RADIUS;
-			int distanceWallTop = distPointWall(walls->wallTop.x1, walls->wallTop.y1, walls->wallTop.x2, walls->wallTop.y2, xb, yb) + BALL_RADIUS;
-			int distanceWallBottom = distPointWall(walls->wallBottom.x1, walls->wallBottom.y1, walls->wallBottom.x2, walls->wallBottom.y2, xb, yb) - BALL_RADIUS;
-
-			if (distanceWallLeft <= 0)
-			{
-				// TODO: prendre en compte l'angle du mur penché (j'ai pas le calcul encore)
-				// ellipse[i].direction.vy *= (mLeft * -1);
-				ellipse[i].direction.vx *= -1;
-			}
-
-			if (distanceWallRight >= 0)
+			if ((xb - BALL_RADIUS <= windowWalls.wallLeft.x1) || (xb + BALL_RADIUS >= windowWalls.wallRight.x1))
 			{
 				ellipse[i].direction.vx *= -1;
 			}
-			if (distanceWallBottom <= 0 || distanceWallTop >= 0)
+			else if ((yb - BALL_RADIUS <= windowWalls.wallTop.y1) || (yb + BALL_RADIUS >= windowWalls.wallBottom.y1))
 			{
 				ellipse[i].direction.vy *= -1;
 			}
@@ -154,7 +135,7 @@ void moveEllipes(Ellipse ellipse[], Walls *walls)
 
 void handleOnClick(Ellipse ellipse[], int mouseX, int mouseY)
 {
-	// TODO: tableau de taille variable OU liste chaîné
+	// TODO: changer en tableau de taille variable OU liste chaîné
 	for (size_t i = 0; i < BALLS_COUNT + 1; i++)
 	{
 		int x_diff = mouseX - ellipse[i].coordinates.x;

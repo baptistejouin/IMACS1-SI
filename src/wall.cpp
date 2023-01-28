@@ -2,7 +2,7 @@
 #include "wall.h"
 #include <iostream>
 
-Walls getAllWalls()
+Shape getCustomWalls()
 {
 	Wall wallTop = {WALL_TOP_X1, WALL_TOP_Y1, WALL_TOP_X2, WALL_TOP_Y2};
 	Wall wallLeft = {WALL_LEFT_X1, WALL_LEFT_Y1, WALL_LEFT_X2, WALL_LEFT_Y2};
@@ -12,19 +12,29 @@ Walls getAllWalls()
 	return {wallTop, wallLeft, wallRight, wallBottom};
 };
 
-void drawWalls(SDL_Renderer *renderer, Walls *walls)
+Shape getWindowWalls()
+{
+	Wall wallTop = {0, 0, SCREEN_WIDTH, 0};
+	Wall wallLeft = {0, 0, 0, SCREEN_HEIGHT};
+	Wall wallRight = {SCREEN_WIDTH, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
+	Wall wallBottom = {0, SCREEN_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT};
+
+	return {wallTop, wallLeft, wallRight, wallBottom};
+};
+
+void drawShape(SDL_Renderer *renderer, Shape *shape)
 {
 	SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255); // définir la couleur de la ligne en rouge
 
 	SDL_Point borderPoints[8] = {
-		{walls->wallTop.x1, walls->wallTop.y1},
-		{walls->wallTop.x2, walls->wallTop.y2},
-		{walls->wallRight.x1, walls->wallRight.y1},
-		{walls->wallRight.x2, walls->wallRight.y2},
-		{walls->wallBottom.x2, walls->wallBottom.y2},
-		{walls->wallBottom.x1, walls->wallBottom.y1},
-		{walls->wallLeft.x2, walls->wallLeft.y2},
-		{walls->wallLeft.x1, walls->wallLeft.y1}};
+		{shape->wallTop.x1, shape->wallTop.y1},
+		{shape->wallTop.x2, shape->wallTop.y2},
+		{shape->wallRight.x1, shape->wallRight.y1},
+		{shape->wallRight.x2, shape->wallRight.y2},
+		{shape->wallBottom.x2, shape->wallBottom.y2},
+		{shape->wallBottom.x1, shape->wallBottom.y1},
+		{shape->wallLeft.x2, shape->wallLeft.y2},
+		{shape->wallLeft.x1, shape->wallLeft.y1}};
 
 	SDL_RenderDrawLines(renderer, borderPoints, 8);
 }

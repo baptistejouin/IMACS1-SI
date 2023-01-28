@@ -27,18 +27,18 @@ typedef struct Ellipse
 Ellipse_Color getRandomColor();
 
 // Générer un position aléatoire à partir de la hauteur et de la largeur d'un plan
-Ellipse_Coordinates getRandomCoordinates(Walls *walls);
+Ellipse_Coordinates getRandomCoordinates(Shape *shape);
 
 Ellipse_Direction getRandomDirectionVector(int maxVect);
 
 // Générer des ellipses en RGBA
-Ellipse getEllipseRGBA(Walls *walls);
+Ellipse getEllipseRGBA(Shape *shape);
 
 // Dessiner des ellipses données dans un renderer donné
 void drawEllipses(SDL_Renderer *renderer, Ellipse ellipse[]);
 
 // Mise à jour des coordonées des ellipses suivant leurs direction et leurs position
-void moveEllipes(Ellipse ellipse[], Walls *walls);
+void moveEllipes(Ellipse ellipse[], Shape *shape);
 
 // Gestion du click sur une ellise
 void handleOnClick(Ellipse ellipse[], int mouseX, int mouseY);

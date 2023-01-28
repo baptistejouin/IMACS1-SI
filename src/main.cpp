@@ -5,11 +5,11 @@
 #include "ellipseRGBA.h"
 #include "SDL2/SDL.h"
 
-void draw(SDL_Renderer *renderer, Ellipse ellipses[], Walls *walls)
+void draw(SDL_Renderer *renderer, Ellipse ellipses[], Shape *walls)
 {
     /* Gestion de l'affichage du jeu */
     drawEllipses(renderer, ellipses);
-    drawWalls(renderer, walls);
+    drawShape(renderer, walls);
 };
 
 bool handleEvent(Ellipse ellipses[])
@@ -48,7 +48,7 @@ int main(int argc, char **argv)
 
     /*  GAME INIT  */
     // Initialisation des Murs
-    Walls walls = getAllWalls();
+    Shape walls = getCustomWalls();
 
     // Initialisation des ellipses
     Ellipse ellipses[BALLS_COUNT];
