@@ -1,4 +1,5 @@
 #include <random>
+#include <optional>
 #include "constants.h"
 #include "application_ui.h"
 #include "SDL2_gfxPrimitives.h"
@@ -7,15 +8,12 @@
 
 std::random_device rd;
 
-Ellipse getEllipseRGBA(Shape *shape)
+Ellipse getEllipseRGBA(std::optional<Ellipse_Coordinates> coordinates)
 {
 	Ellipse ellipse;
 
 	// Définition des dimensions de l'ellipse à partir du rayon
 	ellipse.rad = BALL_RADIUS;
-
-	// Défini si l'ellipse est visible ou non (oui par défaut)
-	ellipse.visible = true;
 
 	// Définition des couleurs de l'ellipse
 	Ellipse_Color color = getRandomColor();
@@ -25,10 +23,19 @@ Ellipse getEllipseRGBA(Shape *shape)
 	ellipse.color.a = color.a;
 
 	// Définition des coordonnées de l'ellipse (avec décalage de l'origine pour éviter les débordements)
-	Ellipse_Coordinates coordinates = getRandomCoordinates(shape);
+	// On vérifie si les paramètres optionnel contienent des valeurs, sinon nous en générons aléatoirement
+	if (coordinates.has_value())
+	{
+		ellipse.coordinates.x = coordinates->x;
+		ellipse.coordinates.y = coordinates->y;
+	}
+	else
+	{
+		Ellipse_Coordinates coordinates = getRandomCoordinates();
 
-	ellipse.coordinates.x = coordinates.x;
-	ellipse.coordinates.y = coordinates.y;
+		ellipse.coordinates.x = coordinates.x;
+		ellipse.coordinates.y = coordinates.y;
+	}
 
 	// Définition du vecteur directeur de l'ellipse
 	Ellipse_Direction direction = getRandomDirectionVector(BALLS_VECT_MAX);
@@ -53,7 +60,7 @@ Ellipse_Color getRandomColor()
 }
 
 // TODO: On voudrais que la balle ne puisse pas apparaitre dans un mur, pour l'instant c'est pas le cas
-Ellipse_Coordinates getRandomCoordinates(Shape *shape)
+Ellipse_Coordinates getRandomCoordinates()
 {
 	// Création d'un générateur de nombres aléatoires
 	std::mt19937 gen(rd());
@@ -89,62 +96,103 @@ Ellipse_Direction getRandomDirectionVector(int maxVect)
 	return {vx, vy};
 }
 
-void drawEllipses(SDL_Renderer *renderer, Ellipse ellipse[])
+void drawEllipses(SDL_Renderer *renderer, std::vector<Ellipse> *ellipses)
 {
 	// Boucler dans le toute les ellipses
-	for (size_t i = 0; i < BALLS_COUNT + 1; i++)
+	for (size_t i = 0; i < ellipses->size(); i++)
 	{
+		Ellipse ellipse = (*ellipses)[i];
 		// Dessiner l'ellipse
-		filledEllipseRGBA(renderer, ellipse[i].coordinates.x, ellipse[i].coordinates.y, ellipse[i].rad, ellipse[i].rad, ellipse[i].color.r, ellipse[i].color.g, ellipse[i].color.b, ellipse[i].color.a);
+		filledEllipseRGBA(renderer, ellipse.coordinates.x, ellipse.coordinates.y, ellipse.rad, ellipse.rad, ellipse.color.r, ellipse.color.g, ellipse.color.b, ellipse.color.a);
 	}
 }
 
-void moveEllipes(Ellipse ellipse[], Shape *shape)
+bool checkCollision(Ellipse &ball, Shape &shape)
+{
+	int ellipseX = ball.coordinates.x;
+	int ellipseY = ball.coordinates.y;
+	int ellipseR = ball.rad;
+	int shapeX1 = shape.wallTop.x1;
+	int shapeY1 = shape.wallTop.y1;
+	int shapeX2 = shape.wallBottom.x2;
+	int shapeY2 = shape.wallBottom.y2;
+
+	// Check collision with top wall
+	if (ellipseY - ellipseR <= shapeY1 && ellipseY + ellipseR >= shapeY1 && (ellipseX + ellipseR >= shapeX1 && ellipseX - ellipseR <= shapeX2))
+	{
+		ball.direction.vy = -ball.direction.vy;
+	}
+	// Check collision with bottom wall
+	else if (ellipseY + ellipseR >= shapeY2 && ellipseY - ellipseR <= shapeY2 && (ellipseX + ellipseR >= shapeX1 && ellipseX - ellipseR <= shapeX2))
+	{
+		ball.direction.vy = -ball.direction.vy;
+	}
+	// Check collision with left wall
+	else if (ellipseX - ellipseR <= shapeX1 && ellipseX + ellipseR >= shapeX1 && (ellipseY + ellipseR >= shapeY1 && ellipseY - ellipseR <= shapeY2))
+	{
+		ball.direction.vx = -ball.direction.vx;
+	}
+	// Check collision with right wall
+	else if (ellipseX + ellipseR >= shapeX2 && ellipseX - ellipseR <= shapeX2 && (ellipseY + ellipseR >= shapeY1 && ellipseY - ellipseR <= shapeY2))
+	{
+		ball.direction.vx = -ball.direction.vx;
+	}
+}
+
+void moveEllipes(std::vector<Ellipse> *ellipses, Shape *shape)
 {
 	Shape windowWalls = getWindowWalls();
-	// TODO: changer en tableau de taille variable OU liste chaîné
-	for (size_t i = 0; i < BALLS_COUNT + 1; i++)
+	for (size_t i = 0; i < ellipses->size(); i++)
 	{
-		// Si pas visible, pas de calcules
-		if (ellipse[i].visible)
-		{
-			// Génère un nombre aléatoire entre 1 et 4 pour pouvoir le multiplier au BALLS_SPEED
-			int randomSpeed = (1 + (rand() % 4)) * BALLS_SPEED;
-			// TODO: FIX THIS (bug, ball trop rapide, voir comment on peut différencier direction et vitesse)
-			randomSpeed = 1;
+		Ellipse ellipse = (*ellipses)[i];
+		// Génère un nombre aléatoire entre 1 et 4 pour pouvoir le multiplier au BALLS_SPEED
+		// TODO: FIX THIS (bug, ball trop rapide, voir comment on peut différencier direction et vitesse)
+		// attention, ne pas laissé ici, la génération et nombre aléatoire et le changement de vitesse ne doit se faire qu'a la collision avec un mur, par a chaque avancé de la balle
+		// int randomSpeed = (1 + (rand() % 4)) * BALLS_SPEED;
+		int randomSpeed = 1;
 
-			// Changement des postions de l'ellipse
-			ellipse[i].coordinates.x += randomSpeed * ellipse[i].direction.vx;
-			ellipse[i].coordinates.y += randomSpeed * ellipse[i].direction.vy;
+		// Changement des postions de l'ellipse
+		(*ellipses)[i].coordinates.x += randomSpeed * ellipse.direction.vx;
+		(*ellipses)[i].coordinates.y += randomSpeed * ellipse.direction.vy;
 
-			// Coordonnée du point mouvant
-			int xb = ellipse[i].coordinates.x;
-			int yb = ellipse[i].coordinates.y;
+		// Coordonnée du point mouvant
+		int xb = ellipse.coordinates.x;
+		int yb = ellipse.coordinates.y;
 
-			if ((xb - BALL_RADIUS <= windowWalls.wallLeft.x1) || (xb + BALL_RADIUS >= windowWalls.wallRight.x1))
-			{
-				ellipse[i].direction.vx *= -1;
-			}
-			else if ((yb - BALL_RADIUS <= windowWalls.wallTop.y1) || (yb + BALL_RADIUS >= windowWalls.wallBottom.y1))
-			{
-				ellipse[i].direction.vy *= -1;
-			}
-		}
+		if (!checkCollision((*ellipses)[i], *shape))
+			checkCollision((*ellipses)[i], windowWalls);
 	}
 }
 
-void handleOnClick(Ellipse ellipse[], int mouseX, int mouseY)
+void handleOnClick(std::vector<Ellipse> *ellipses, int mouseX, int mouseY)
 {
-	// TODO: changer en tableau de taille variable OU liste chaîné
-	for (size_t i = 0; i < BALLS_COUNT + 1; i++)
+	const Ellipse_Coordinates mouseCoordinates = {mouseX, mouseY};
+	bool foundIt = false;
+	size_t i = 0;
+
+	while (!foundIt && i < ellipses->size())
 	{
-		int x_diff = mouseX - ellipse[i].coordinates.x;
-		int y_diff = mouseY - ellipse[i].coordinates.y;
+		Ellipse ellipse = (*ellipses)[i];
+
+		int x_diff = mouseCoordinates.x - ellipse.coordinates.x;
+		int y_diff = mouseCoordinates.y - ellipse.coordinates.y;
 		int distance = sqrt(x_diff * x_diff + y_diff * y_diff);
 
-		if (distance <= ellipse[i].rad)
-		{
-			ellipse[i].visible = false;
-		}
+		if (distance <= ellipse.rad)
+			foundIt = true;
+		else
+			i++;
+	}
+
+	if (foundIt)
+	{
+		// Suppression d'une ellipse
+		(*ellipses).erase((*ellipses).begin() + i);
+	}
+	else
+	{
+		// Créaton d'une nouvelle ellipse
+		Ellipse ellipse = getEllipseRGBA(mouseCoordinates);
+		(*ellipses).push_back(ellipse);
 	}
 }
