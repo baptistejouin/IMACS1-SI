@@ -8,7 +8,7 @@
 
 std::random_device rd;
 
-Ellipse getEllipseRGBA(std::optional<Ellipse_Coordinates> coordinates)
+Ellipse getEllipseRGBA(std::optional<Ellipse_Coordinates> coordinates, std::optional<Ellipse_Color> color)
 {
 	Ellipse ellipse;
 
@@ -16,11 +16,20 @@ Ellipse getEllipseRGBA(std::optional<Ellipse_Coordinates> coordinates)
 	ellipse.rad = BALL_RADIUS;
 
 	// Définition des couleurs de l'ellipse
-	Ellipse_Color color = getRandomColor();
-	ellipse.color.r = color.r;
-	ellipse.color.g = color.g;
-	ellipse.color.b = color.b;
-	ellipse.color.a = color.a;
+	// On vérifie si les paramètres optionnel contienent des valeurs, sinon nous en générons aléatoirement
+	if (color.has_value())
+	{
+		ellipse.color.r = color->r;
+		ellipse.color.g = color->g;
+		ellipse.color.b = color->b;
+	}
+	else
+	{
+		Ellipse_Color color = getRandomColor();
+		ellipse.color.r = color.r;
+		ellipse.color.g = color.g;
+		ellipse.color.b = color.b;
+	}
 
 	// Définition des coordonnées de l'ellipse (avec décalage de l'origine pour éviter les débordements)
 	// On vérifie si les paramètres optionnel contienent des valeurs, sinon nous en générons aléatoirement
@@ -32,7 +41,6 @@ Ellipse getEllipseRGBA(std::optional<Ellipse_Coordinates> coordinates)
 	else
 	{
 		Ellipse_Coordinates coordinates = getRandomCoordinates();
-
 		ellipse.coordinates.x = coordinates.x;
 		ellipse.coordinates.y = coordinates.y;
 	}
@@ -54,9 +62,9 @@ Ellipse_Color getRandomColor()
 	std::uniform_int_distribution<> dis(0, 255);
 
 	// Génération d'une couleur aléatoire
-	Uint8 r = dis(gen), g = dis(gen), b = dis(gen), a = 255;
+	Uint8 r = dis(gen), g = dis(gen), b = dis(gen);
 
-	return {r, g, b, a};
+	return {r, g, b};
 }
 
 // TODO: On voudrais que la balle ne puisse pas apparaitre dans un mur, pour l'instant c'est pas le cas
@@ -103,7 +111,7 @@ void drawEllipses(SDL_Renderer *renderer, std::vector<Ellipse> *ellipses)
 	{
 		Ellipse ellipse = (*ellipses)[i];
 		// Dessiner l'ellipse
-		filledEllipseRGBA(renderer, ellipse.coordinates.x, ellipse.coordinates.y, ellipse.rad, ellipse.rad, ellipse.color.r, ellipse.color.g, ellipse.color.b, ellipse.color.a);
+		filledEllipseRGBA(renderer, ellipse.coordinates.x, ellipse.coordinates.y, ellipse.rad, ellipse.rad, ellipse.color.r, ellipse.color.g, ellipse.color.b, 255);
 	}
 }
 

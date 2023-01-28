@@ -2,7 +2,7 @@
 
 typedef struct Ellipse_Color
 {
-	Uint8 r, g, b, a;
+	Uint8 r, g, b;
 } Ellipse_Color;
 
 typedef struct Ellipse_Coordinates
@@ -31,7 +31,7 @@ Ellipse_Coordinates getRandomCoordinates();
 Ellipse_Direction getRandomDirectionVector(int maxVect);
 
 // Générer des ellipses en RGBA avec des paramètres optionnel (générer aléatoirement sinon)
-Ellipse getEllipseRGBA(std::optional<Ellipse_Coordinates> coordinates = std::nullopt);
+Ellipse getEllipseRGBA(std::optional<Ellipse_Coordinates> coordinates = std::nullopt, std::optional<Ellipse_Color> color = std::nullopt);
 
 // Dessiner des ellipses données dans un renderer donné
 void drawEllipses(SDL_Renderer *renderer, std::vector<Ellipse> *ellipses);
