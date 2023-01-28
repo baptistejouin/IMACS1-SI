@@ -4,7 +4,7 @@
 #include "application_ui.h"
 #include "SDL2_gfxPrimitives.h"
 #include "wall.h"
-#include "ellipseRGBA.h"
+#include "ellipse.h"
 
 std::random_device rd;
 

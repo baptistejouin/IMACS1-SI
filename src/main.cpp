@@ -6,7 +6,7 @@
 #include "application_ui.h"
 #include "SDL2_gfxPrimitives.h"
 #include "wall.h"
-#include "ellipseRGBA.h"
+#include "ellipse.h"
 #include "SDL2/SDL.h"
 
 void draw(SDL_Renderer *renderer, std::vector<Ellipse> *ellipses, Shape *walls)
