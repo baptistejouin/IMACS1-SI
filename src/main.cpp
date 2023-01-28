@@ -1,10 +1,12 @@
 #include <optional>
+#include <cstdlib>
+#include <iostream>
+#include <vector>
 #include "constants.h"
-#include "vector"
 #include "application_ui.h"
 #include "SDL2_gfxPrimitives.h"
 #include "wall.h"
-#include "ellipseRGBA.h"
+#include "ellipse.h"
 #include "SDL2/SDL.h"
 
 void draw(SDL_Renderer *renderer, std::vector<Ellipse> *ellipses, Shape *walls)
@@ -13,6 +15,20 @@ void draw(SDL_Renderer *renderer, std::vector<Ellipse> *ellipses, Shape *walls)
     drawEllipses(renderer, ellipses);
     drawShape(renderer, walls);
 };
+
+void hexToRGB(std::string hexColor, Uint8 &r, Uint8 &g, Uint8 &b)
+{
+    // Vérifier si la longueur est correcte
+    if (hexColor.length() != 6)
+    {
+        std::cout << "Invalid hex color format" << std::endl;
+        return;
+    }
+    // Extraire les valeurs de rouge, vert et bleu
+    r = std::stoi(hexColor.substr(0, 2), nullptr, 16);
+    g = std::stoi(hexColor.substr(2, 2), nullptr, 16);
+    b = std::stoi(hexColor.substr(4, 2), nullptr, 16);
+}
 
 bool handleEvent(std::vector<Ellipse> *ellipses)
 {
@@ -30,6 +46,7 @@ bool handleEvent(std::vector<Ellipse> *ellipses)
         }
         return true;
     }
+    return true;
 }
 
 int main(int argc, char **argv)
@@ -49,15 +66,37 @@ int main(int argc, char **argv)
     renderer = SDL_CreateRenderer(gWindow, -1, 0); // SDL_RENDERER_PRESENTVSYNC
 
     /*  GAME INIT  */
+    std::vector<Ellipse> ellipses;
+
     // Initialisation des Murs
     Shape walls = getCustomWalls();
 
-    // Initialisation des ellipses dans un vecteur
-    std::vector<Ellipse> ellipses;
-    for (size_t i = 0; i < BALLS_COUNT; i++)
+    // Utilisation des paramètres d'entré
+    if (argc <= 2)
     {
-        Ellipse ellipse = getEllipseRGBA();
-        ellipses.push_back(ellipse);
+        // Si l’utilisateur exécute le jeu avec un argument en ligne de commande, changer le nombre de balles en fonction de l’argument.
+        int ballsCount = argc == 2 ? std::atoi(argv[1]) : BALLS_COUNT;
+
+        // Initialisation des ellipses dans un vecteur
+        for (int i = 0; i < ballsCount; i++)
+        {
+            Ellipse ellipse = getEllipseRGBA();
+            ellipses.push_back(ellipse);
+        }
+    }
+
+    // Si l’utilisateur exécute le jeu avec plusieurs arguments, ajouter une balle par argument, l’argument définira la couleur de balle.
+    else
+    {
+        for (int i = 1; i < argc; i++)
+        {
+            Uint8 r, g, b;
+            hexToRGB(argv[i], r, g, b);
+            Ellipse_Color color = {r, g, b};
+
+            Ellipse ellipse = getEllipseRGBA(std::nullopt, color);
+            ellipses.push_back(ellipse);
+        }
     }
 
     /*  GAME LOOP  */
