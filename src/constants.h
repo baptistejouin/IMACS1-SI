@@ -2,7 +2,7 @@
 #define CONSTANTS_H
 
 const int SCREEN_WIDTH = 720, SCREEN_HEIGHT = 480;
-const int BALLS_COUNT = 1, BALL_RADIUS = 20;
+const int BALLS_COUNT = 15, BALL_RADIUS = 20;
 const int BALLS_SPEED = 1;
 const int BALLS_VECT_MAX = 3;
 

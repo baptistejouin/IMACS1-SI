@@ -121,22 +121,27 @@ bool checkCollision(Ellipse &ball, Shape &shape)
 	if (ellipseY - ellipseR <= shapeY1 && ellipseY + ellipseR >= shapeY1 && (ellipseX + ellipseR >= shapeX1 && ellipseX - ellipseR <= shapeX2))
 	{
 		ball.direction.vy = -ball.direction.vy;
+		return true;
 	}
 	// Check collision with bottom wall
 	else if (ellipseY + ellipseR >= shapeY2 && ellipseY - ellipseR <= shapeY2 && (ellipseX + ellipseR >= shapeX1 && ellipseX - ellipseR <= shapeX2))
 	{
 		ball.direction.vy = -ball.direction.vy;
+		return true;
 	}
 	// Check collision with left wall
 	else if (ellipseX - ellipseR <= shapeX1 && ellipseX + ellipseR >= shapeX1 && (ellipseY + ellipseR >= shapeY1 && ellipseY - ellipseR <= shapeY2))
 	{
 		ball.direction.vx = -ball.direction.vx;
+		return true;
 	}
 	// Check collision with right wall
 	else if (ellipseX + ellipseR >= shapeX2 && ellipseX - ellipseR <= shapeX2 && (ellipseY + ellipseR >= shapeY1 && ellipseY - ellipseR <= shapeY2))
 	{
 		ball.direction.vx = -ball.direction.vx;
+		return true;
 	}
+	return false;
 }
 
 void moveEllipes(std::vector<Ellipse> *ellipses, Shape *shape)
@@ -154,10 +159,6 @@ void moveEllipes(std::vector<Ellipse> *ellipses, Shape *shape)
 		// Changement des postions de l'ellipse
 		(*ellipses)[i].coordinates.x += randomSpeed * ellipse.direction.vx;
 		(*ellipses)[i].coordinates.y += randomSpeed * ellipse.direction.vy;
-
-		// Coordonnée du point mouvant
-		int xb = ellipse.coordinates.x;
-		int yb = ellipse.coordinates.y;
 
 		if (!checkCollision((*ellipses)[i], *shape))
 			checkCollision((*ellipses)[i], windowWalls);
