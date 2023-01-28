@@ -1,36 +1,44 @@
+#include <optional>
 #include "constants.h"
+#include "vector"
 #include "application_ui.h"
 #include "SDL2_gfxPrimitives.h"
 #include "wall.h"
 #include "ellipseRGBA.h"
+#include "SDL2/SDL.h"
 
-void draw(SDL_Renderer *renderer, Ellipse ellipses[], Walls walls)
+void draw(SDL_Renderer *renderer, std::vector<Ellipse> *ellipses, Shape *walls)
 {
-    /* Remplissez cette fonction pour faire l'affichage du jeu */
+    /* Gestion de l'affichage du jeu */
     drawEllipses(renderer, ellipses);
-    moveEllipes(ellipses, walls);
+    drawShape(renderer, walls);
 };
 
-bool handleEvent()
+bool handleEvent(std::vector<Ellipse> *ellipses)
 {
-    /* Remplissez cette fonction pour gérer les inputs utilisateurs */
+    /* Gestion des inputs utilisateurs */
     SDL_Event e;
     while (SDL_PollEvent(&e))
     {
         if (e.type == SDL_QUIT)
             return false;
+        if (e.type == SDL_MOUSEBUTTONDOWN)
+        {
+            int mouseX, mouseY;
+            SDL_GetMouseState(&mouseX, &mouseY);
+            handleOnClick(ellipses, mouseX, mouseY);
+        }
+        return true;
     }
-    return true;
 }
 
 int main(int argc, char **argv)
 {
     SDL_Window *gWindow;
     SDL_Renderer *renderer;
-    bool is_running = true;
 
-    // Creation de la fenetre
-    gWindow = init("Awesome Game");
+    // Création de la fenêtre
+    gWindow = init("Guerin Lucie, Jouin Baptiste, IMAC");
 
     if (!gWindow)
     {
@@ -40,52 +48,37 @@ int main(int argc, char **argv)
 
     renderer = SDL_CreateRenderer(gWindow, -1, 0); // SDL_RENDERER_PRESENTVSYNC
 
-    // Temps de début de la boucle de mise à jour
-    Uint32 startTime = SDL_GetTicks();
+    /*  GAME INIT  */
+    // Initialisation des Murs
+    Shape walls = getCustomWalls();
 
-    // Initialisation des ellipses
-    Ellipse ellipses[BALLS_COUNT];
-
-    for (auto &ellipse : ellipses)
+    // Initialisation des ellipses dans un vecteur
+    std::vector<Ellipse> ellipses;
+    for (size_t i = 0; i < BALLS_COUNT; i++)
     {
-        ellipse = getEllipseRGBA();
+        Ellipse ellipse = getEllipseRGBA();
+        ellipses.push_back(ellipse);
     }
 
-    // Initialisation des Murs
-    Walls walls = getAllWalls();
-
     /*  GAME LOOP  */
-    while (true)
+    do
     {
-        // Calcul du temps écoulé depuis le début de la boucle de mise à jour
-        Uint32 elapsedTime = SDL_GetTicks() - startTime;
-        // INPUTS
-        is_running = handleEvent();
-        if (!is_running)
-            break;
-
-        // GESTION ACTEURS
-
-        // ...
-
         // EFFACAGE FRAME
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
 
         // DESSIN
-        // Calcul de la distance parcourue par l'ellipse en fonction de la vitesse et du temps écoulé
+        draw(renderer, &ellipses, &walls);
 
-        draw(renderer, ellipses, walls);
-
-        // Mise à jour de l'affichage
+        // UPDATE
         SDL_RenderPresent(renderer);
+
+        // MISE À JOUR DU JEU POUR LA PROCHAINE FRAME
+        moveEllipes(&ellipses, &walls);
 
         // PAUSE en ms
         SDL_Delay(1000 / 30);
-
-        // Mise à jour du temps de début de la boucle de mise à jour
-        startTime = SDL_GetTicks();
-    }
+    } while (handleEvent(&ellipses));
 
     // Free resources and close SDL
     close(gWindow, renderer);

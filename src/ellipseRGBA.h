@@ -11,7 +11,7 @@ typedef struct Ellipse_Coordinates
 } Ellipse_Coordinates;
 typedef struct Ellipse_Direction
 {
-	float vx, vy;
+	int vx, vy;
 } Ellipse_Direction;
 
 typedef struct Ellipse
@@ -26,15 +26,18 @@ typedef struct Ellipse
 Ellipse_Color getRandomColor();
 
 // Générer un position aléatoire à partir de la hauteur et de la largeur d'un plan
-Ellipse_Coordinates getRandomCoordinates(int width, int height);
+Ellipse_Coordinates getRandomCoordinates();
 
-Ellipse_Direction getRandomDirectionVector(int min, int max);
+Ellipse_Direction getRandomDirectionVector(int maxVect);
 
-// Générer des ellipses en RGBA
-Ellipse getEllipseRGBA();
+// Générer des ellipses en RGBA avec des paramètres optionnel (générer aléatoirement sinon)
+Ellipse getEllipseRGBA(std::optional<Ellipse_Coordinates> coordinates = std::nullopt);
 
 // Dessiner des ellipses données dans un renderer donné
-void drawEllipses(SDL_Renderer *renderer, Ellipse ellipse[]);
+void drawEllipses(SDL_Renderer *renderer, std::vector<Ellipse> *ellipses);
 
 // Mise à jour des coordonées des ellipses suivant leurs direction et leurs position
-void moveEllipes(Ellipse ellipse[], Walls walls);
+void moveEllipes(std::vector<Ellipse> *ellipses, Shape *shape);
+
+// Gestion du click sur une ellise
+void handleOnClick(std::vector<Ellipse> *ellipses, int mouseX, int mouseY);

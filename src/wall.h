@@ -6,9 +6,12 @@ typedef struct Wall
 	int x2, y2;
 } Wall;
 
-typedef struct Walls
+typedef struct Shape
 {
 	Wall wallTop, wallLeft, wallRight, wallBottom;
-} Walls;
+} Shape;
 
-Walls getAllWalls();
+Shape getCustomWalls();
+Shape getWindowWalls();
+
+void drawShape(SDL_Renderer *renderer, Shape *shape);
