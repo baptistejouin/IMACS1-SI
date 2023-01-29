@@ -75,7 +75,7 @@ int main(int argc, char **argv)
     if (argc <= 2)
     {
         // Si l’utilisateur exécute le jeu avec un argument en ligne de commande, changer le nombre de balles en fonction de l’argument.
-        int ballsCount = argc == 2 ? std::atoi(argv[1]) : BALLS_COUNT;
+        int ballsCount = argc == 2 ? std::stoi(argv[1]) : BALLS_COUNT;
 
         // Initialisation des ellipses dans un vecteur
         for (int i = 0; i < ballsCount; i++)
