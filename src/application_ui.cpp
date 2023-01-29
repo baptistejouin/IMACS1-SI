@@ -1,3 +1,4 @@
+#include <SDL2/SDL_ttf.h>
 #include "constants.h"
 #include "application_ui.h"
 
@@ -7,7 +8,7 @@ using namespace std;
 SDL_Window *init(string windowTitle)
 {
     // Initialize SDL
-    if (SDL_Init(SDL_INIT_VIDEO) < 0)
+    if (SDL_Init(SDL_INIT_VIDEO) < 0 && TTF_Init() < 0)
     {
         SDL_Log("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
     }
@@ -42,13 +43,17 @@ SDL_Surface *loadMedia(string path)
     return gHelloWorld;
 }
 
-void close(SDL_Window *gWindow, SDL_Renderer *renderer)
+void close(SDL_Window *gWindow, SDL_Renderer *renderer, TTF_Font *font)
 {
     // Deallocate surface
     SDL_DestroyRenderer(renderer);
 
     // Destroy window
     SDL_DestroyWindow(gWindow);
+
+    // Quit SDL TTF
+    TTF_CloseFont(font);
+    TTF_Quit();
 
     // Quit SDL subsystems
     SDL_Quit();

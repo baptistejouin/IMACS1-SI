@@ -1,6 +1,6 @@
+#include <iostream>
 #include "constants.h"
 #include "wall.h"
-#include <iostream>
 
 Shape getCustomWalls()
 {

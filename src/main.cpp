@@ -2,12 +2,13 @@
 #include <cstdlib>
 #include <iostream>
 #include <vector>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_ttf.h>
 #include "constants.h"
 #include "application_ui.h"
 #include "SDL2_gfxPrimitives.h"
 #include "wall.h"
 #include "ellipse.h"
-#include "SDL2/SDL.h"
 
 void draw(SDL_Renderer *renderer, std::vector<Ellipse> *ellipses, Shape *walls)
 {
@@ -65,6 +66,11 @@ int main(int argc, char **argv)
 
     renderer = SDL_CreateRenderer(gWindow, -1, 0); // SDL_RENDERER_PRESENTVSYNC
 
+    TTF_Font *font = TTF_OpenFont("arial.ttf", 24);
+    SDL_Color color = {255, 255, 255, 1};
+    SDL_Surface *textSurface = TTF_RenderText_Solid(font, "Hello World!", color);
+    SDL_Texture *textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
+
     /*  GAME INIT  */
     std::vector<Ellipse> ellipses;
 
@@ -110,6 +116,7 @@ int main(int argc, char **argv)
         draw(renderer, &ellipses, &walls);
 
         // UPDATE
+        SDL_RenderCopy(renderer, textTexture, NULL, NULL);
         SDL_RenderPresent(renderer);
 
         // MISE À JOUR DU JEU POUR LA PROCHAINE FRAME
